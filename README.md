@@ -1,3 +1,5 @@
+This repo is a collection of examples of different state managers you can use as an alternative to Recoil.
+
 Every example provides these insights:
 
 - How to create state
