@@ -1,21 +1,22 @@
-import { observable, observe } from "@legendapp/state";
+import { observable } from "@legendapp/state";
+import { syncedFetch } from "@legendapp/state/sync-plugins/fetch";
 import { use$ } from "@legendapp/state/react";
+import { $React } from "@legendapp/state/react-web";
 
 const count$ = observable(0);
 const doubleCount$ = observable(() => count$.get() * 2);
 
 const userID$ = observable(1);
-const user$ = observable<{ name?: string }>({});
-observe(async () => {
-  console.log(`userID set to ${userID$.get()}`);
-  user$.set(await fetch(`/${userID$.get()}.json`).then((res) => res.json()));
-});
+const user$ = observable<{ name?: string }>(
+  syncedFetch({
+    get: () => `/${userID$.get()}.json`,
+  })
+);
 
 function App() {
   const count = use$(count$);
   const doubleCount = use$(doubleCount$);
 
-  const userID = use$(userID$);
   const user = use$(user$);
 
   return (
@@ -43,15 +44,14 @@ function App() {
       </div>
 
       <div className="flex gap-2 items-center mt-4">
-        <select
-          value={userID}
-          onChange={(e) => userID$.set(+e.target.value)}
+        <$React.select
+          $value={userID$}
           className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
         >
           <option value={1}>User 1</option>
           <option value={2}>User 2</option>
           <option value={3}>User 3</option>
-        </select>
+        </$React.select>
         <p>user is {user?.name}</p>
       </div>
     </>
